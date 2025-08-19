@@ -3,6 +3,7 @@ import json
 import os
 import requests
 from dotenv import load_dotenv
+from datetime import datetime, timezone
 
 load_dotenv()
 
@@ -49,7 +50,7 @@ def register_song():
             "url": url,
             "price": price,
             "owner": owner,  # Use the address provided by user
-            "timestamp": "2024-01-01T00:00:00Z"  # You might want to use actual timestamp
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z" # timestamp format 
         }
 
         # Prepare BaaS API payload according to their specification
