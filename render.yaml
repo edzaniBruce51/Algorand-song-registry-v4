@@ -1,0 +1,12 @@
+#Render configurations.
+services:
+  - type: web
+    name: song-registry-dapp
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000

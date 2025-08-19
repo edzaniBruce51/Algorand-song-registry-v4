@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Song Registry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 2.5rem; font-weight: 300; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1rem; }
+        
+        .content { padding: 40px 30px; }
+        
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .form-section h2 { color: #333; margin-bottom: 20px; }
+        
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        input[name="owner"] {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        input:focus { outline: none; border-color: #667eea; }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn:hover { transform: translateY(-2px); }
+        
+        .songs-section h2 { color: #333; margin-bottom: 30px; }
+        
+        .song-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .song-title { font-size: 1.4rem; font-weight: 600; color: #333; margin-bottom: 15px; }
+        .song-info { color: #666; line-height: 1.6; }
+        .song-info strong { color: #333; }
+        .song-url { color: #667eea; text-decoration: none; }
+        .song-url:hover { text-decoration: underline; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Song Registry</h1>
+            <p>Decentralized music registry on Algorand</p>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="form-section">
+                <h2>Register New Song</h2>
+                <form action="/register_song" method="post">
+                    <input type="text" name="title" placeholder="Song Title" required>
+                    <input type="url" name="url" placeholder="Song URL" required>
+                    <input type="number" name="price" placeholder="Price (microALGOs)" required>
+                    <input type="text" name="owner" placeholder="Owner Algorand Address (e.g., GLQZZC3SKIHG...)" required>
+                    <button type="submit" class="btn">Register Song</button>
+                </form>
+            </div>
+
+            <div class="songs-section">
+                <h2>Registered Songs ({{ songs|length }})</h2>
+                
+                {% if songs %}
+                    {% for song in songs %}
+                    <div class="song-card">
+                        <div class="song-title">{{ song.title }}</div>
+                        <div class="song-info">
+                            <p><strong>URL:</strong> <a href="{{ song.url }}" target="_blank" class="song-url">{{ song.url }}</a></p>
+                            <p><strong>Price:</strong> {{ song.price }} microALGOs</p>
+                            {% if song.owner %}<p><strong>Owner:</strong> {{ song.owner }}</p>{% endif %}
+                            {% if song.status %}<p><strong>Status:</strong> {{ song.status }}</p>{% endif %}
+                            {% if song.data_id %}<p><strong>Tracking ID:</strong> {{ song.data_id }}</p>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No songs registered yet</h3>
+                        <p>Be the first to register a song on the blockchain!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

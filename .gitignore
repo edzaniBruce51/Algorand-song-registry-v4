@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Account files with private keys
+deployment_account.json
+deployment_info.json
+*.json
+
+# Windows crash dumps
+*.stackdump
+bash.exe.stackdump
+
+# Algorand specific
+deployment_info.json
+*.teal
+sandbox/data/
+sandbox/.active_config
+sandbox/.clean
+sandbox/sandbox.log
