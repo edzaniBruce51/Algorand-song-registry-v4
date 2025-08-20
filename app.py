@@ -99,27 +99,25 @@ def register_song():
 @app.route("/webhook/blockchain-notification", methods=["POST"])
 def blockchain_webhook():
     try:
-        webhook_data = request.get_json(force=True)
+        webhook_data = request.get_json()
+        
+        # Log the full webhook data for debugging
         print(f"Received webhook: {webhook_data}")
 
-        data_schema_name = webhook_data.get("dataSchemaName")
-        data_id = webhook_data.get("dataId")
+        # Extract identifiers we sent originally
+        data_schema_name = webhook_data.get('dataSchemaName')
+        data_id = webhook_data.get('dataId')
 
-        # Extract blockchain results safely
-        blockchain_results = webhook_data.get("BlockchainResults", [])
-        transaction_id, status = None, "unknown"
-
-        if blockchain_results and isinstance(blockchain_results, list):
-            result = blockchain_results[0]
-            transaction_id = result.get("transactionId")
-            status = "success" if result.get("isSuccess") else "failed"
+        # Extract transaction details
+        transaction_id = webhook_data.get('transactionId')
+        status = webhook_data.get('status') # success, failed, etc.
 
         # Update song in local storage
         if data_schema_name == "songRegistry" and data_id:
             for song in songs:
                 if song.get("data_id") == data_id:
-                    song["status"] = status
-                    song["blockchain_tx_id"] = transaction_id
+                    status = song["status"] 
+                    transaction_id = song["blockchain_tx_id"] 
                     print(f"Updated song {data_id}: status={status}, tx_id={transaction_id}")
                     break
 
@@ -128,7 +126,6 @@ def blockchain_webhook():
     except Exception as e:
         print(f"Webhook error: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
