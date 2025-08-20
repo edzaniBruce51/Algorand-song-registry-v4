@@ -106,7 +106,7 @@ def blockchain_webhook():
         data_id = webhook_data.get("dataId")
 
         # Extract blockchain results
-        blockchain_results = webhook_data.get("BlockchainResults", [])
+        blockchain_results = webhook_data.get("blockchainResults", [])
         transaction_id, status = None, "pending"
 
         if blockchain_results and isinstance(blockchain_results, list):
