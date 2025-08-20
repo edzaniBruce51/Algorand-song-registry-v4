@@ -4,7 +4,7 @@ services:
     name: song-registry-dapp
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app
     envVars:
       - key: FLASK_ENV
         value: production
