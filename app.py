@@ -49,15 +49,15 @@ def register_song():
             "title": title,
             "url": url,
             "price": price,
-            "owner": owner,  # Uses the address provided by user
-            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") # timestamp format 
+            "owner": owner,  # Use the address provided by user
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z" # timestamp format 
         }
 
         # Prepare BaaS API payload according to their specification
         payload = {
-            "dataSchemaName": "songRegistry",     # Table/schema name from sender perspective
-            "dataId": data_id,                    # Row ID from sender perspective
-            "jsonPayload": json.dumps(song_data)  # The actual data to be hashed and stored
+            "dataSchemaName": "songRegistry",  # Table/schema name from sender perspective
+            "dataId": data_id,                 # Row ID from sender perspective
+            "jsonPayload": song_data           # The actual data to be hashed and stored
         }
 
         # Try different header formats - blockapi.co.za might use different auth
@@ -98,36 +98,37 @@ def register_song():
 
 @app.route("/webhook/blockchain-notification", methods=["POST"])
 def blockchain_webhook():
+    """Webhook to receive transaction complete notifications from BaaS platform"""
     try:
-        webhook_data = request.get_json(force=True)
+        webhook_data = request.get_json()
+
+        # Log the full webhook data for debugging
         print(f"Received webhook: {webhook_data}")
 
-        data_schema_name = webhook_data.get("dataSchemaName")
-        data_id = webhook_data.get("dataId")
+        # Extract the identifiers we sent originally
+        data_schema_name = webhook_data.get('dataSchemaName')
+        data_id = webhook_data.get('dataId')
 
-        # Extract blockchain results
-        blockchain_results = webhook_data.get("blockchainResults", [])
-        transaction_id, status = None, "pending"
+        # Extract transaction details
+        transaction_id = webhook_data.get('transactionId')
+        status = webhook_data.get('status')  # success, failed, etc.
 
-        if blockchain_results and isinstance(blockchain_results, list):
-            result = blockchain_results[0]
-            transaction_id = result.get("transactionId")
-            status = "success" if result.get("isSuccess") else "failed"
-
-        # Update song in local storage
         if data_schema_name == "songRegistry" and data_id:
+            # Find the song in our local storage using data_id
             for song in songs:
-                if song.get("data_id") == data_id:
-                    song["status"] = status
-                    song["blockchain_tx_id"] = transaction_id
-                    print(f"Updated song {data_id}: status={status}, tx_id={transaction_id}")
+                if song.get('data_id') == data_id:
+                    # Update song status based on blockchain result
+                    song['status'] = 'confirmed' if status == 'success' else 'failed'
+                    song['blockchain_tx_id'] = transaction_id
+                    print(f"Updated song {data_id}: status={song['status']}, tx_id={transaction_id}")
                     break
 
         return jsonify({"message": "Webhook processed successfully"}), 200
 
     except Exception as e:
         print(f"Webhook error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Webhook processing failed"}), 500
+
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
