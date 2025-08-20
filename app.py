@@ -49,7 +49,7 @@ def register_song():
             "title": title,
             "url": url,
             "price": price,
-            "owner": owner,  # Use the address provided by user
+            "owner": owner,  # Uses the address provided by user
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") # timestamp format 
         }
 
