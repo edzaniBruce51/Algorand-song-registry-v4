@@ -14,23 +14,21 @@ This v4 approach uses BaaS (Blockchain as a Service) integration:
 
 ### Prerequisites
 - Python 3.7+
-- Pera Wallet with TestNet ALGO (for transaction fees ~0.001 ALGO per song)
 
 ### Setup
 
 1. **Clone and install dependencies:**
 ```bash
-git clone https://github.com/edzaniBruce51/song-registry-smart-contract.git
-cd song-registry-smart-contract
+git clone https://github.com/edzaniBruce51/Algorand-song-registry-v4.git
+cd Algorand-song-registry-v4
 pip install -r requirements.txt
 ```
 
 2. **Configure environment:**
-   - Copy your 25-word mnemonic from Pera Wallet
-   - Create a `.env` file in the project directory:
-   ```
-   ALGOWALLET_MNEMONIC=your 25 word mnemonic phrase here
-   ```
+  FLASK_SECRET_KEY=your_flask_secret
+  BLOCKAPI_BASE_URL=https://blockapi.co.za/api/v1
+  BLOCKAPI_API_KEY=your_api_key_here
+  WEBHOOK_URL=https://your-service.onrender.com/webhook/blockchain-notification
 
 3. **Run the app:**
 ```bash
@@ -41,39 +39,43 @@ Visit `http://127.0.0.1:5000` to register and view songs.
 
 ## Features
 
-- **Zero-cost song registration** (only network fees ~0.001 ALGO)
-- **Permanent blockchain storage** in transaction notes
-- **Public verification** via Algorand Explorer
-- **No smart contract complexity** - just simple payment transactions
-- **Human-readable JSON** metadata on the blockchain
+- **No wallet setup required** ((BaaS handles blockchain access)
+- **Asynchronous writes** with webhooks for transaction confirmation
+- **Public verification** via Algorand Explorer (transaction ID stored)
+- **Simple metadata registry** - (song title, URL, price, owner)
+- **Flash messages** show success/errors in UI
 
-## Example Transaction Note
-```json
+## Example Payload Sent to Baas
 {
-  "application": "songRegistry",
-  "version": 3,
-  "title": "My Song",
-  "url": "https://example.com/song.mp3",
-  "price": 5,
-  "owner": "GLQZZC3SKIHGOAPAYDXG2D5WZJ3NBSIPXPCB3JF62KBOTZRF6VTCL65FWM"
+  "dataSchemaName": "songRegistry",
+  "dataId": "song_1724209000",
+  "jsonPayload": {
+    "application": "songRegistry",
+    "version": 4,
+    "title": "My Song",
+    "url": "https://example.com/song.mp3",
+    "price": 5,
+    "owner": "GLQZZC3SKIHGOAPAYDXG2D5WZJ3NBSIPXPCB3JF62KBOTZRF6VTCL65FWM",
+    "timestamp": "2025-08-20T08:00:00Z"
+  }
 }
-```
+
 
 ## Tech Stack
 
-- **Frontend:** Flask, HTML, CSS
-- **Blockchain:** Algorand TestNet (zero-value payments)
-- **Data Storage:** Transaction notes (JSON format)
-- **APIs:** Algorand Node API + Indexer API
-- **Wallet:** Pera Wallet integration
+- **Frontend:** HTML, Flash Messages 
+- **Blockchain:** Flask (Python)
+- **Data Storage:** In-memory (songs list; not persistent)
+- **Blockchain:** Algorand (via BlockAPI Baas)
+- **Deployment:** Render
 
 ## Architecture Benefits
 
-✅ **Simplified Development** - No smart contract deployment or maintenance
-✅ **Cost Effective** - Only pay minimal network fees
-✅ **Transparent** - All data visible on public blockchain explorers
-✅ **Immutable** - Permanent record of song registrations
-✅ **Accessible** - Standard blockchain APIs work out-of-the-box
+✅ **Simplified Development** - No smart contract deployment or maintenance, BaaS handles complexity
+✅ **Webhook-driven** - updates -> async & scalable
+✅ **Transparent** - Transaction IDs verifiable on Algorand Explorer
+✅ **No private keys** - no risk of wallet exposure 
+
 
 ## Business Value
 
@@ -81,4 +83,4 @@ Perfect for businesses wanting blockchain benefits without blockchain complexity
 - Proof of ownership and timestamping
 - Public verification capabilities
 - Minimal technical overhead
-- Universal accessibility via standard APIs
+- Easy integration into existing apps
