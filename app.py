@@ -103,36 +103,50 @@ def register_song():
 # Receive blockchain updates
 @app.route("/webhook/blockchain-notification", methods=["POST"])
 def blockchain_webhook():
-    """Webhook to receive transaction complete notifications from BaaS platform"""
     try:
-        webhook_data = request.get_json()    # Receive webhook JSON
+        webhook_data = request.get_json(silent=True)
+        if not webhook_data:
+            print("Webhook error: no JSON body")
+            return jsonify({"error": "Invalid webhook"}), 400
 
-        # Log the full webhook data for debugging
         print(f"Received webhook: {webhook_data}")
 
-        # Extract IDs & status
-        data_schema_name = webhook_data.get('dataSchemaName')
-        data_id = webhook_data.get('dataId')
-        transaction_id = webhook_data.get('transactionId')
-        status = webhook_data.get('status')  # success, failed, etc.
+        data_id = webhook_data.get("dataId")
+        results = webhook_data.get("BlockchainResults", [])
 
-        # Update local song status
-        if data_schema_name == "songRegistry" and data_id:
-            # Find the song in our local storage using data_id
-            for song in songs:
-                if song.get('data_id') == data_id:
-                    # Update song status based on blockchain result
-                    song['status'] = 'confirmed' if status == 'success' else 'failed'
-                    song['blockchain_tx_id'] = transaction_id
-                    print(f"Updated song {data_id}: status={song['status']}, tx_id={transaction_id}")
-                    break
+        tx_id = None
+        explorer_url = None
+        success_flag = None
 
-        # Respond to webhook
+        if results and isinstance(results, list):
+            first = results[0]
+            tx_id = first.get("transactionId")
+            explorer_url = first.get("transactionExplorerUrl")
+            success_flag = first.get("isSuccess")
+
+        # Update your in-memory songs list
+        for song in songs:
+            if song.get("data_id") == data_id:
+                if success_flag is True:
+                    song["status"] = "confirmed"
+                elif success_flag is False:
+                    song["status"] = "failed"
+                else:
+                    song.setdefault("status", "pending")
+
+                if tx_id:
+                    song["blockchain_tx_id"] = tx_id
+                if explorer_url:
+                    song["explorer_url"] = explorer_url
+
+                print(f"Updated song {data_id}: {song}")
+                break
+
         return jsonify({"message": "Webhook processed successfully"}), 200
 
     except Exception as e:
-        print(f"Webhook error: {str(e)}")
-        return jsonify({"error": "Webhook processing failed"}), 500
+        print(f"Webhook exception: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # Application Runner.
