@@ -101,32 +101,42 @@ def register_song():
     return redirect("/")
 
 # Receive blockchain updates
+# whenever someone sends a POST request to /webhook/blockchain-notification, run the function below
+# This function listens for blockchain updates → finds the correct song → updates its status and blockchain info → and confirms back to the webhook sender.
 @app.route("/webhook/blockchain-notification", methods=["POST"])
-def blockchain_webhook():
+def blockchain_webhook():    # the function that will run when the webhook is triggered
     try:
-        webhook_data = request.get_json(silent=True)
+        # Grab the JSON data that was sent in the request.
+        webhook_data = request.get_json(silent=True)   # if the body isn’t valid JSON, don’t scream an error—just give None.
+        
+        # If no data came in (or it wasn’t JSON), we stop right away and return an error message.
+        # 400 = bad request.
         if not webhook_data:
             print("Webhook error: no JSON body")
             return jsonify({"error": "Invalid webhook"}), 400
 
+        # logs what we got, for debugging.
         print(f"Received webhook: {webhook_data}")
 
-        data_id = webhook_data.get("dataId")
-        results = webhook_data.get("BlockchainResults", [])
+        data_id = webhook_data.get("dataId")       
+        results = webhook_data.get("BlockchainResults", [])   # A list of blockchain transaction results, If BlockchainResults isn’t there, just give an empty list.
 
-        tx_id = None
-        explorer_url = None
-        success_flag = None
+        # Prepare 3 empty variables to store info if we find it later:
+        tx_id = None            # blockchain transaction ID.
+        explorer_url = None     # link to see the transaction on a blockchain explorer.
+        success_flag = None     # whether it succeeded or failed.
 
+        # If results isn’t empty, take the first item in the list and pull out:
         if results and isinstance(results, list):
             first = results[0]
             tx_id = first.get("transactionId")
             explorer_url = first.get("transactionExplorerUrl")
-            success_flag = first.get("isSuccess")
+            success_flag = first.get("isSuccess")      # True/False
 
         # Update your in-memory songs list
+        # Go through your list of songs in memory.
         for song in songs:
-            if song.get("data_id") == data_id:
+            if song.get("data_id") == data_id:   # If a song has the same data_id as the webhook dataId, then update that song.
                 if success_flag is True:
                     song["status"] = "confirmed"
                 elif success_flag is False:
