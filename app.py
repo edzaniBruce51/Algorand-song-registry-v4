@@ -164,21 +164,83 @@ def blockchain_webhook():    # the function that will run when the webhook is tr
 @app.route("/verify_transaction", methods=["GET", "POST"])
 def verify_transaction():
     if request.method == "POST":
-        # Handle form submission
-        tx_id = request.form.get("tx_id")
-        payload = request.form.get("payload")
+        # Get form data using correct field names
+        transaction_id = request.form.get("transactionId")
+        json_payload_str = request.form.get("jsonPayload")
+        json_payload_hash = request.form.get("jsonPayloadHash")
         
-        # Call your blockchain API to verify
-        response = requests.post(
-            f"{BLOCKAPI_BASE_URL}/blockchainTransaction/verify",
-            json={"transaction_id": tx_id, "payload": payload},
-            headers={"Authorization": f"Bearer {BLOCKAPI_API_KEY}"}
-        )
+        print(f"Verifying - TX ID: {transaction_id}")
+        print(f"Payload String: {json_payload_str}")
+        print(f"Hash: {json_payload_hash}")
+        
+        # Validate required fields
+        if not transaction_id:
+            flash("Transaction ID is required", "error")
+            return redirect(url_for("verify_transaction"))
+        
+        try:
+            # Use same authentication as registration
+            headers = {
+                "X-API-Key": BLOCKAPI_API_KEY,
+                "Content-Type": "application/json"
+            }
+            
+            # Build verification payload exactly as API expects
+            verification_payload = {
+                "transactionId": transaction_id
+            }
+            
+            # Parse and add jsonPayload if provided
+            if json_payload_str and json_payload_str.strip():
+                try:
+                    # Parse the JSON string into an object
+                    json_payload_obj = json.loads(json_payload_str)
+                    verification_payload["jsonPayload"] = json_payload_obj
+                    print(f"Parsed JSON payload: {json_payload_obj}")
+                except json.JSONDecodeError as e:
+                    flash(f"Invalid JSON payload format: {str(e)}", "error")
+                    return redirect(url_for("verify_transaction"))
+            
+            # Add hash if provided
+            if json_payload_hash and json_payload_hash.strip():
+                verification_payload["jsonPayloadHash"] = json_payload_hash
+            
+            print(f"Sending verification request: {verification_payload}")
+            
+            # Send request to the exact endpoint
+            response = requests.post(
+                f"{BLOCKAPI_BASE_URL}/blockchainTransaction/verify",
+                json=verification_payload,
+                headers=headers,
+                timeout=30
+            )
+            
+            print(f"Response status: {response.status_code}")
+            print(f"Response text: {response.text}")
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    flash("Transaction verification completed!", "success")
+                    return render_template("verify_transaction.html", 
+                                         tx_id=transaction_id, 
+                                         result=result)
+                except json.JSONDecodeError:
+                    flash(f"Verification response: {response.text}", "success")
+                    return render_template("verify_transaction.html", 
+                                         tx_id=transaction_id, 
+                                         result={"raw_response": response.text})
+            else:
+                error_msg = f"Verification failed. Status: {response.status_code} - {response.text}"
+                flash(error_msg, "error")
+                print(f"Verification failed: {error_msg}")
 
-        if response.status_code == 200:
-            flash(" Transaction successfully verified!", "success")
-        else:
-            flash(" Verification failed. Please try again.", "error")
+        except requests.RequestException as e:
+            flash(f"Network error during verification: {str(e)}", "error")
+            print(f"Request exception: {e}")
+        except Exception as e:
+            flash(f"Unexpected error during verification: {str(e)}", "error")
+            print(f"General exception: {e}")
 
         return redirect(url_for("verify_transaction"))
 
