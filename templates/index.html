@@ -102,7 +102,19 @@
             padding: 60px 20px;
             color: #666;
         }
-
+        .nav-btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+        .nav-btn:hover {
+            background: #f1f1f1;
+        }
 
     </style>
 </head>
@@ -146,7 +158,11 @@
                             {% if song.owner %}<p><strong>Owner:</strong> {{ song.owner }}</p>{% endif %}
                             {% if song.status %}<p><strong>Status:</strong> {{ song.status }}</p>{% endif %}
                             {% if song.data_id %}<p><strong>Tracking ID:</strong> {{ song.data_id }}</p>{% endif %}
-                            {% if song.blockchain_tx_id %}<p><strong>Blockchain Tx:</strong><a href="https://testnet.explorer.perawallet.app/tx/{{ song.blockchain_tx_id }}" target="_blank" class="song-url">{{ song.blockchain_tx_id }}</a></p>{% endif %}
+                            {% if song.blockchain_tx_id %}<p><strong>Blockchain Tx:</strong><a href="https://testnet.explorer.perawallet.app/tx/{{ song.blockchain_tx_id }}" target="_blank" class="song-url">{{ song.blockchain_tx_id }}</a></p>
+                            <p>
+                                <a href="/verify_transaction?tx_id={{ song.blockchain_tx_id }}" 
+                                class="nav-btn">🔍 Verify Transaction</a>
+                            </p>{% endif %}
                         </div>
                     </div>
                     {% endfor %}
