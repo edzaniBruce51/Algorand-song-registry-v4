@@ -127,6 +127,7 @@ def blockchain_webhook():    # the function that will run when the webhook is tr
         success_flag = None     # whether it succeeded or failed.
 
         # If results isn’t empty, take the first item in the list and pull out:
+        # isInstance - This ensures that results is actually a Python list object.
         if results and isinstance(results, list):
             first = results[0]
             tx_id = first.get("transactionId")
@@ -157,6 +158,33 @@ def blockchain_webhook():    # the function that will run when the webhook is tr
     except Exception as e:
         print(f"Webhook exception: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+# verify transactions on the blockchain
+@app.route("/verify_transaction", methods=["GET", "POST"])
+def verify_transaction():
+    if request.method == "POST":
+        # Handle form submission
+        tx_id = request.form.get("tx_id")
+        payload = request.form.get("payload")
+        
+        # Call your blockchain API to verify
+        response = requests.post(
+            f"{BLOCKAPI_BASE_URL}/blockchainTransaction/verify",
+            json={"transaction_id": tx_id, "payload": payload},
+            headers={"Authorization": f"Bearer {BLOCKAPI_API_KEY}"}
+        )
+
+        if response.status_code == 200:
+            flash(" Transaction successfully verified!", "success")
+        else:
+            flash(" Verification failed. Please try again.", "error")
+
+        return redirect(url_for("verify_transaction"))
+
+    # Handle GET request (pre-fill tx_id if passed as query param)
+    tx_id = request.args.get("tx_id", "")
+    return render_template("verify_transaction.html", tx_id=tx_id)
 
 
 # Application Runner.
