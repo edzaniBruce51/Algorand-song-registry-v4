@@ -73,15 +73,29 @@
             border-radius: 10px;
             overflow-x: auto;
         }
+        .back-btn {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #5a6268;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 Verify Transaction</h1>
+            <h1> Verify Transaction</h1>
             <p>Check if your record is stored on the blockchain</p>
         </div>
         <div class="content">
+            <a href="/" class="back-btn">← Back to Registry</a>
+            
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -93,11 +107,29 @@
             <div class="form-section">
                 <h2>Enter Transaction Details</h2>
                 <form method="post">
-                    <input type="text" name="transactionId" placeholder="Transaction ID" required>
-                    <textarea name="jsonPayload" placeholder="jsonPayload"></textarea>
-                    <input type="text" name="jsonPayloadHash" placeholder="jsonPayloadHash (Base64)">
-                    <button type="submit" class="btn">Verify Transaction</button>
+                    <label for="transactionId" style="display: block; margin-bottom: 5px; font-weight: bold;">Transaction ID (Required)</label>
+                    <input type="text" name="transactionId" id="transactionId" 
+                           placeholder="e.g., 3X7WRG2MCPKJSMRJONHOJTENMONPENOWRA6RO4OMFZSVYJF45HXA" 
+                           value="{{ tx_id or '' }}" required>
+                    
+                    <label for="jsonPayload" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload (Optional)</label>
+                    <textarea name="jsonPayload" id="jsonPayload" 
+                              placeholder='{"application": "songRegistry", "title": "My Song", "url": "https://...", "price": 1000}'></textarea>
+                    
+                    <label for="jsonPayloadHash" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload Hash - Base64 (Optional)</label>
+                    <input type="text" name="jsonPayloadHash" id="jsonPayloadHash" 
+                           placeholder="e.g., b3ykUhKHKXQMIshI+pFxOZYqgnUn2o3jzV/sXl67Vc">
+                    
+                    <button type="submit" class="btn"> Verify Transaction</button>
                 </form>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 10px; font-size: 14px;">
+                    <strong> Instructions:</strong><br>
+                    • <strong>Transaction ID:</strong> Required - Get this from your blockchain transaction<br>
+                    • <strong>JSON Payload:</strong> Optional - The original data that was stored<br>
+                    • <strong>Hash:</strong> Optional - For additional verification integrity<br><br>
+                    <strong> Tip:</strong> You can verify with just the Transaction ID, or include payload/hash for complete verification.
+                </div>
             </div>
 
             {% if result %}
