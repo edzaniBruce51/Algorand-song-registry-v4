@@ -153,12 +153,12 @@
                     <div class="song-card">
                         <div class="song-title">{{ song.title }}</div>
                         <div class="song-info">
-                            <p><strong>URL:</strong> <a href="{{ song.url }}" target="_blank" class="song-url">{{ song.url }}</a></p>
-                            <p><strong>Price:</strong> {{ song.price }} microALGOs</p>
-                            {% if song.owner %}<p><strong>Owner:</strong> {{ song.owner }}</p>{% endif %}
-                            {% if song.status %}<p><strong>Status:</strong> {{ song.status }}</p>{% endif %}
-                            {% if song.data_id %}<p><strong>Tracking ID:</strong> {{ song.data_id }}</p>{% endif %}
-                            {% if song.blockchain_tx_id %}<p><strong>Blockchain Tx:</strong><a href="https://testnet.explorer.perawallet.app/tx/{{ song.blockchain_tx_id }}" target="_blank" class="song-url">{{ song.blockchain_tx_id }}</a></p>
+                            <p><strong>URL: </strong> <a href="{{ song.url }}" target="_blank" class="song-url">{{ song.url }}</a></p>
+                            <p><strong>Price: </strong> {{ song.price }} microALGOs</p>
+                            {% if song.owner %}<p><strong>Owner: </strong> {{ song.owner }}</p>{% endif %}
+                            {% if song.status %}<p><strong>Status: </strong> {{ song.status }}</p>{% endif %}
+                            {% if song.data_id %}<p><strong>Tracking ID: </strong> {{ song.data_id }}</p>{% endif %}
+                            {% if song.blockchain_tx_id %}<p><strong>Blockchain Tx: </strong><a href="https://testnet.explorer.perawallet.app/tx/{{ song.blockchain_tx_id }}" target="_blank" class="song-url">{{ song.blockchain_tx_id }}</a></p>
                             <p>
                                 <a href="/verify_transaction?tx_id={{ song.blockchain_tx_id }}" 
                                 class="nav-btn">🔍 Verify Transaction</a>
