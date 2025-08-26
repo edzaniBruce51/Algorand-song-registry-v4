@@ -105,31 +105,25 @@
             {% endwith %}
 
             <div class="form-section">
+                
                 <h2>Enter Transaction Details</h2>
+                
                 <form method="post">
                     <label for="transactionId" style="display: block; margin-bottom: 5px; font-weight: bold;">Transaction ID (Required)</label>
                     <input type="text" name="transactionId" id="transactionId" 
                            placeholder="e.g., 3X7WRG2MCPKJSMRJONHOJTENMONPENOWRA6RO4OMFZSVYJF45HXA" 
                            value="{{ tx_id or '' }}" required>
                     
-                    <label for="jsonPayload" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload (Optional)</label>
+                    <label for="jsonPayload" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload</label>
                     <textarea name="jsonPayload" id="jsonPayload" 
                               placeholder='{"application": "songRegistry", "title": "My Song", "url": "https://...", "price": 1000}'></textarea>
                     
-                    <label for="jsonPayloadHash" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload Hash - Base64 (Optional)</label>
+                    <label for="jsonPayloadHash" style="display: block; margin-bottom: 5px; font-weight: bold;">JSON Payload Hash - Base64</label>
                     <input type="text" name="jsonPayloadHash" id="jsonPayloadHash" 
                            placeholder="e.g., b3ykUhKHKXQMIshI+pFxOZYqgnUn2o3jzV/sXl67Vc">
                     
                     <button type="submit" class="btn"> Verify Transaction</button>
                 </form>
-                
-                <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 10px; font-size: 14px;">
-                    <strong> Instructions:</strong><br>
-                    • <strong>Transaction ID:</strong> Required - Get this from your blockchain transaction<br>
-                    • <strong>JSON Payload:</strong> Optional - The original data that was stored<br>
-                    • <strong>Hash:</strong> Optional - For additional verification integrity<br><br>
-                    <strong> Tip:</strong> You can verify with just the Transaction ID, or include payload/hash for complete verification.
-                </div>
             </div>
 
             {% if result %}
@@ -140,5 +134,5 @@
             {% endif %}
         </div>
     </div>
-</body>
+</body> 
 </html>
